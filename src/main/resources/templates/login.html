@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--  <link rel="stylesheet" href="style.css">-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+        integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <title>Login</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+    *{
+      margin: 0px;
+      padding: 0px;
+    }
+
+    body{
+      font-family: 'Roboto', sans-serif;
+      background-color: teal;
+
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+
+    }
+
+    .container{
+      margin: 100px;
+      background-color: white;
+      padding: 40px;
+    }
+
+    .container h2{
+      color: teal;
+    }
+
+    input[type="text"], input[type="password"]{
+
+      width: 100%;
+      box-sizing: border-box;
+      margin: 15px 0px;
+      padding: 12px 20px;
+
+    }
+
+    button{
+
+      margin: 15px 0px;
+      padding: 20px;
+      font-size: 18px;
+      width: 100%;
+      background-color: teal;
+      color: whitesmoke;
+      border: none;
+
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="form">
+    <h2>Login To Your Account</h2>
+    <form role="form" action="/login.html" th:action="@{/login.html}" method="POST">
+      <p th:if="${#httpServletRequest.getParameter('authentication_error') == 'true'}" style="color: crimson">Sai tên đăng nhập hoặc mật khẩu<br/>Hoặc user đã bị khóa.<br/>Vui lòng kiểm tra lại thông tin. Hoặc liên hệ với quản trị.</p>
+      <input type="text" name="j_username" placeholder="Username" />
+      <input type="password" name="j_password" placeholder="Password" />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

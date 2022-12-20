@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Tạo lớp học</title>
+    <content th:replace="fragments/init :: head"></content>
+</head>
+<style>
+    .tabs {
+        display: flex;
+        align-items: center;
+    }
+    .tab-item {
+        padding: 8px 12px;
+        background-color: #dadada;
+        margin-right: 24px;
+        color: black;
+        border-radius: 12px;
+        cursor: pointer;
+    }
+    .tab-item.active {
+        background-color: #0d45e5;
+    }
+    .content-item {
+        display: none;
+    }
+    .content-item.active {
+        display: table;
+    }
+    .complete-btn {
+        display: none;
+    }
+</style>
+<body>
+
+<div class="container-fluid" style="padding: 0">
+    <div class="row g-0">
+        <content th:replace="fragments/nav-bar :: content"></content>
+
+        <div class="app col-10">
+            <div class="header">
+                <form style="width: 100%;" th:action="@{/classroom/find}" method="GET">
+                    <div class="search-group input-group d-flex align-items-center">
+                        <button class="search-btn" type="submit" id="button-addon2">
+                            <i class="fal fa-search"></i>
+                        </button>
+                        <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
+                    </div>
+                </form>
+                <div class="dropdown account">
+                    <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Account setting</a></li>
+                        <li><a class="dropdown-item" href="/logout">Log out</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main-body">
+                <div class="title-page">
+                    <h4>Thông tin lớp học</h4>
+                </div>
+                <div class="detail-wrapper">
+                    <div class="info-wrapper">
+                        <h4 class="name mt-2" th:text="${'Tên lớp: ' + classroom.name}"></h4>
+                        <p class="detail-txt" th:text="${'Mã lớp: ' + classroom.id}"></p>
+                        <p class="detail-txt" th:text="${'Khối: ' + classroom.grade}"></p>
+                        <p class="detail-txt" th:text="${'Số lượng sinh viên: '+ classroom.users.size() + '/' + classroom.amount}"></p>
+                        <p sec:authorize="hasAnyAuthority('USER', 'ADMIN')" class="detail-txt" th:text="${'Số môn giảng dạy: '+ subjects.size()}"></p>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="tabs">
+                        <div class="tab-item active">Danh sách sinh viên</div>
+                        <div sec:authorize="hasAnyAuthority('USER', 'ADMIN')" class="tab-item">Danh sách môn giảng dạy</div>
+                    </div>
+                    <div sec:authorize="hasAuthority('ADMIN')" class="add-btn">
+                        <a class="btn btn-primary" th:href="@{/classroom/{id}/subject/add(id=${classroom.id})}">Thêm môn học +</a>
+                    </div>
+                </div>
+
+                <div class="contents">
+                    <table sec:authorize="hasAnyAuthority('USER', 'ADMIN')" class="table mt-4 content-item active">
+                        <thead>
+                        <tr>
+                            <th scope="col">STT</th>
+                            <th scope="col">MSV</th>
+                            <th scope="col">Họ và tên</th>
+                            <th scope="col">Ngày sinh</th>
+                            <th scope="col">Điện thoại</th>
+                            <th scope="col">Địa chỉ</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="student, iterStat :${classroom.users}">
+                            <td  data-title="Stt" th:text="${iterStat.count}">1</td>
+                            <td th:text="${student.id}"></td>
+                            <td sec:authorize="hasAuthority('ADMIN')">
+                                <a th:text="${student.name}" th:href="@{/student/{id}(id=${student.id})}"></a>
+                            </td>
+                            <td sec:authorize="hasAuthority('USER')" th:text="${student.name}">
+                            </td>
+                            <td th:text="${student.getStringDob() }"></td>
+                            <td th:text="${student.phone}"></td>
+                            <td th:text="${student.address}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table sec:authorize="hasAnyAuthority('USER', 'ADMIN')" id="a" class="table mt-4 content-item">
+                        <thead>
+                        <tr>
+                            <th scope="col">STT</th>
+                            <th scope="col">Môn học</th>
+                            <th scope="col">Mô tả</th>
+                            <th scope="col">Giáo viên</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${subjects!=null}" th:each="subject, iterStat :${subjects}">
+                            <td  data-title="Stt" th:text="${iterStat.count}">1</td>
+                            <td th:text="${subject.name}">
+                            </td>
+                            <td th:text="${subject.description}"></td>
+                            <td th:text="${subject.users.get(0).name}"></td>
+                            <td>
+                                <a sec:authorize="hasAuthority('ADMIN')" class="btn btn-danger delete-btn" th:data-subject-id="${subject.id}" th:data-class-id="${classroom.id}" data-bs-toggle="modal" data-bs-target="#delete">
+                                    Xóa
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <form th:action="@{/result/update}" th:object="${form}" method="post">
+                        <fieldset>
+                            <div sec:authorize="hasAuthority('TEACHER')" class="float-end mt-4">
+                                <input type="text" th:value="${classroom.id}" th:name="classId" hidden>
+                                <a class="btn btn-primary update-btn">Cập nhật</a>
+                                <button type="submit" class="btn btn-primary complete-btn">Hoàn tất</button>
+                            </div>
+                            <table id="table-mark" sec:authorize="hasAuthority('TEACHER')" class="table mt-4">
+                                <thead>
+                                <tr>
+                                    <th scope="col">STT</th>
+                                    <th scope="col">MSV</th>
+                                    <th scope="col">Họ và tên</th>
+                                    <th scope="col">Điểm</th>
+                                    <th scope="col">Ngày cập nhật</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="student, itemStat :${studentMarks}">
+                                    <td  data-title="Stt" th:text="${itemStat.count}">1</td>
+                                    <td th:text="${student.userId}"></td>
+                                    <td th:text="${student.name}"></td>
+                                    <td>
+                                        <input type="text"  th:name="|results[${itemStat.index}].student.id|" th:value="${student.userId}" class="studentId-input" hidden="true">
+                                        <input type="text" th:name="|results[${itemStat.index}].subject.id|" th:value="${subject.id}" hidden="true">
+                                        <input type="text" th:name="|results[${itemStat.index}].mark|" th:value="${student.marks}" class="mark-input" disabled>
+                                    </td>
+                                    <td th:text="${student.updateDate}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </fieldset>
+                        <button type="submit" style="visibility: hidden" class="submit-mark">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="modal fade" id="delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Xóa môn học</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h4 class="text-danger">Xóa môn học khỏi lớp!</h4>
+                    <form action="/classroom/subject/delete" method="GET">
+                        <input class="delete-form" id="class-id" th:name="classId" hidden="true"/>
+                        <input class="delete-form" id="subject-id" th:name="subjectId" hidden="true"/>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-danger">Xóa</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<content th:replace="fragments/init :: script"></content>
+<script>
+    //Thay đổi table student/subject
+    let tabs = $(".tab-item");
+    let contents = $(".content-item");
+    tabs.each((index, tab) => {
+        tab.onclick = () => {
+            $(".tab-item.active").removeClass("active");
+            $(".content-item.active").removeClass("active");
+            $(tab).addClass("active");
+            $(contents.get(index)).addClass("active");
+        }
+    })
+
+    //Xóa môn học khỏi lớp
+    let classId="";
+    let subjectId="";
+    let form = $("#class-id")
+    let form2 = $("#subject-id")
+    $(".delete-btn").on('click', function() {
+        classId = Number($(this).attr("data-class-id"));
+        subjectId = Number($(this).attr("data-subject-id"));
+        form.val(classId)
+        form2.val(subjectId)
+    })
+
+    //cập nhật điểm
+    let updateBtn = $(".update-btn");
+    let completeBtn = $(".complete-btn");
+    let markInput = $(".mark-input");
+
+    updateBtn.click(() => {
+        completeBtn.css("display", "block");
+        updateBtn.css("display", "none");
+        markInput.removeAttr('disabled');
+    })
+    completeBtn.click(() => {
+        updateBtn.css("display", "block");
+        completeBtn.css("display", "none");
+
+
+    })
+</script>
+</body>
+</html>

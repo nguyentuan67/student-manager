@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Dashboard</title>
+  <content th:replace="fragments/init :: head"></content>
+</head>
+<body>
+
+<div class="container-fluid" style="padding: 0">
+  <div class="row g-0">
+    <content th:replace="fragments/nav-bar :: content"></content>
+    <div class="app col-10">
+      <div class="header">
+        <form style="width: 100%;" th:action="@{/user/find}" method="GET">
+          <div class="search-group input-group d-flex align-items-center">
+            <button class="search-btn" type="submit" id="button-addon2">
+              <i class="fal fa-search"></i>
+            </button>
+            <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
+          </div>
+        </form>
+        <div class="dropdown account">
+          <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Account setting</a></li>
+            <li><a class="dropdown-item" href="/logout">Log out</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="main-body">
+        <div class="title-page">
+          <h4>Danh sách học sinh</h4>
+        </div>
+        <table class="table">
+          <thead>
+          <tr>
+            <th scope="col">STT</th>
+            <th scope="col">Username</th>
+            <th scope="col">Họ và tên</th>
+            <th scope="col">Ngày sinh</th>
+            <th scope="col">Lớp</th>
+            <th scope="col">Email</th>
+            <th scope="col">Địa chỉ</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+
+          <tr th:each="student, iterStat: ${students}">
+            <td  data-title="Stt" th:text="${iterStat.count}">1</td>
+            <td th:text="${student.username}"></td>
+            <td>
+              <a th:text="${student.name}" th:href="@{/student/{id}(id=${student.id})}"></a>
+            </td>
+            <td th:text="${student.getStringDob() }"></td>
+            <td th:if="${student.classrooms.size()!=0}">
+              <a th:text="${student.classrooms.get(0).name}" th:href="@{/classroom/{id}(id=${student.classrooms.get(0).id})}"></a>
+            </td>
+            <td th:if="${student.classrooms.size()==0}">
+              <p>Trống</p>
+            </td>
+            <td th:text="${student.email}"></td>
+            <td th:text="${student.address}"></td>
+            <td class="act-td">
+              <a class="act-btn edit-btn" th:href="@{/user/{id}/update(id=${student.id})}">
+                <i class="fal fa-comment-alt-edit"></i>
+              </a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<content th:replace="fragments/init :: script"></content>
+<script>
+  let id="";
+  let form = $("#delete-id")
+  $(".delete-btn").on('click', function() {
+    id = Number($(this).attr("data-id"));
+    form.val(id)
+  })
+</script>
+</body>
+</html>

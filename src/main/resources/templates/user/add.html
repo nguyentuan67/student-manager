@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Thêm tài khoản</title>
+  <content th:replace="fragments/init :: head"></content>
+</head>
+
+<body>
+<div class="container-fluid" style="padding: 0">
+  <div class="row g-0">
+    <content th:replace="fragments/nav-bar :: content"></content>
+    <div class="app col-10">
+      <div class="header">
+        <form style="width: 100%;" th:action="@{/user/find}" method="GET">
+          <div class="search-group input-group d-flex align-items-center">
+            <button class="search-btn" type="submit" id="button-addon2">
+              <i class="fal fa-search"></i>
+            </button>
+            <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
+          </div>
+        </form>
+        <div class="dropdown account">
+          <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Account setting</a></li>
+            <li><a class="dropdown-item" href="/logout">Log out</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="main-body">
+        <div class="title-page">
+          <h4>Thêm tài khoản mới</h4>
+        </div>
+        <form th:action="@{/user/add}" method="POST">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" th:name="username" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Mật khẩu</label>
+            <input type="text" th:name="password" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Họ và tên</label>
+            <input type="text" th:name="name" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Ngày sinh</label>
+            <div class="col-5">
+              <div class="input-group date" id="datepicker">
+                <input type="text" th:name="dob" class="form-control" id="date"/>
+                <span class="input-group-append"></span>
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Giới tính</label>
+            <select class="form-select form-select-lg mb-3 classId" th:name="gender" aria-label=".form-select-lg example">
+              <option th:value="Khác" selected>-Giới tính-</option>
+              <option th:value="Nam" th:text="Nam"></option>
+              <option th:value="Nữ" th:text="Nữ"></option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="text" th:name="email" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Số điện thoại</label>
+            <input type="text" th:name="phone" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Địa chỉ</label>
+            <input type="text" th:name="address" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label>Phân quyền</label>
+            <div class="form-check">
+              <input class="form-check-input role-input" type="radio" th:name="role_id" th:value="0" name="flexRadioDefault" id="flexRadioDefault1" checked>
+              <label class="form-check-label" for="flexRadioDefault1">
+                Học sinh
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input role-input" type="radio" th:name="role_id" th:value="1" name="flexRadioDefault" id="flexRadioDefault2">
+              <label class="form-check-label" for="flexRadioDefault2">
+                Giáo viên
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-3 select-item active">
+            <label class="form-label">Lớp học</label>
+            <select class="form-select form-select-lg mb-3 classId" th:name="classroom_id" aria-label=".form-select-lg example">
+              <option value=" " selected>Chọn lớp học</option>
+              <option th:each="classroom: ${classrooms}"  th:value="${classroom.id}" th:text="${classroom.name}"></option>
+            </select>
+          </div>
+          <div class="mb-3 select-item">
+            <label class="form-label">Dạy môn</label>
+            <select disabled class="form-select form-select-lg mb-3 classId" th:name="subject_id" aria-label=".form-select-lg example">
+              <option value=" " selected>Chọn môn học</option>
+              <option th:each="subject: ${subjects}"  th:value="${subject.id}" th:text="${subject.name} + ' (Lớp: ' + ${subject.grade} + ')'"></option>
+            </select>
+          </div>
+
+          <div class="mb-4 btn-submit-form">
+            <button type="submit" class="btn btn-primary">Thêm</button>
+            <a th:href="@{/user/list}" class="btn btn-danger">Hủy</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<content th:replace="fragments/init :: script"></content><script type="text/javascript">
+  $(function() {
+    $('#datepicker').datepicker({
+      format: 'dd/mm/yyyy'
+    });
+  });
+
+  let tabs = $(".role-input");
+  let contents = $(".select-item");
+  tabs.each((index, tab) => {
+    tab.onclick = () => {
+      console.log($('.select-item.active select'))
+      $('.select-item.active select').attr('disabled', 'disabled');
+      $(".select-item.active").removeClass("active");
+      $(contents.get(index)).addClass("active");
+      $('.select-item.active select').removeAttr('disabled');
+    }
+  })
+</script>
+</body>
+</html>

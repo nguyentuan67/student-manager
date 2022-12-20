@@ -1,0 +1,148 @@
+body {
+    font-family: Roboto;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+a {
+    text-decoration: none;
+}
+.row.g-0 {
+    min-height: 100vh;
+}
+.nav-bar {
+    background-color: #042954;
+    padding: 0;
+}
+.logo {
+    background-color: #ffa701;
+    height: 70px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.logo p {
+    color: #fff;
+    font-weight: 700;
+    font-size: 28px;
+    margin: 0;
+}
+.nav-item {
+    border-bottom: 1px solid #021933;
+}
+.nav-link {
+    display: block;
+    color: #9ea8b5;
+    font-weight: 400;
+    padding: 17px 26px;
+    font-size: 16px;
+}
+.nav-link:hover {
+    color: #fff;
+}
+.app {
+    background-color: #f0f1f3;
+}
+.main-body {
+    padding: 0 30px;
+}
+.header {
+    height: 70px;
+    background-color: #fff;
+    box-shadow: 0px 1px 10px 0px rgb(0 0 0 / 10%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+}
+.search-group  {
+    height: 45px;
+    max-width: 430px;
+}
+.search-btn {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 24px;
+    color: #bebebe;
+}
+.search-input {
+    border: none;
+    outline: none;
+    padding: 6px 12px;
+    flex: 1;
+}
+.btn-dropdown {
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 6px 12px;
+}
+.title-page {
+    padding: 34px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.title-page h4 {
+    font-size: 22px;
+    font-weight: 500;
+    color: #111111;
+}
+table, tr {
+    background-color: #fff;
+    border-collapse: collapse;
+    border: 1px solid #e1e1e1;
+}
+th, td {
+    vertical-align:middle;
+}
+tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+th:first-child, td:first-child {
+    border-right: 1px solid #e1e1e1;
+}
+table {
+    background-color: #fff;
+}
+.act-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #fff;
+}
+.act-btn:hover {
+    color: #fff;
+}
+.act-btn.edit-btn {
+    background-color: #00c853;
+}
+.act-btn.delete-btn {
+    background-color: #ff0000;
+}
+
+
+/*Up date page*/
+.select-item {
+    display: none;
+}
+.select-item.active {
+    display: block;
+}
+
+/*Post*/
+.post-wrapper {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0px 1px 10px 0px rgb(0 0 0 / 10%);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}

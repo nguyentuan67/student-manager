@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Tạo bài viết</title>
+    <content th:replace="fragments/init :: head"></content>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+</head>
+<body>
+
+<div class="container-fluid" style="padding: 0">
+    <div class="row g-0">
+        <content th:replace="fragments/nav-bar :: content"></content>
+
+        <div class="app col-10">
+            <div class="header">
+                <form style="width: 100%;" th:action="@{/user/find}" method="GET">
+                    <div class="search-group input-group d-flex align-items-center">
+                        <button class="search-btn" type="submit" id="button-addon2">
+                            <i class="fal fa-search"></i>
+                        </button>
+                        <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
+                    </div>
+                </form>
+                <div class="dropdown account">
+                    <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Account setting</a></li>
+                        <li><a class="dropdown-item" href="/logout">Log out</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main-body">
+                <div class="title-page">
+                    <h4>Tạo thông báo</h4>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tiêu đề</label>
+                    <input type="text" required class="title-input form-control">
+                </div>
+                <div class="mt-2" id="editor"></div>
+                <button onclick="handlePost()" class="my-4 btn btn-primary">Đăng bài</button>
+                <a href="javascript:history.back();" class="btn btn-danger">Hủy</a>
+
+                <form id="post-form" th:action="@{/post/create}" method="POST"></form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#editor').summernote({
+        height: 400,
+        minHeight: null,
+        maxHeight: 400,
+        focus: true
+    });
+
+    function handlePost() {
+        const form = document.getElementById('post-form');
+        $(".btn-codeview.note-codeview-keep").click();
+        const params = {
+            title: $(".title-input").val(),
+            description: $(".note-codable").val()
+        }
+        for (const key in params) {
+            if (params.hasOwnProperty(key)) {
+                const hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = key;
+                hiddenField.value = params[key];
+                form.appendChild(hiddenField);
+            }
+        }
+        $(".btn-codeview.note-codeview-keep").click();
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+</body>
+</html>

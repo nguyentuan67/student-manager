@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Dashboard</title>
+    <content th:replace="fragments/init :: head"></content>
+</head>
+
+<body>
+
+<div class="container-fluid" style="padding: 0">
+    <div class="row g-0">
+        <content th:replace="fragments/nav-bar :: content"></content>
+        <div class="app col-10">
+            <div class="header">
+                <form style="width: 100%;" th:action="@{/user/find}" method="GET">
+                    <div class="search-group input-group d-flex align-items-center">
+                        <button class="search-btn" type="submit" id="button-addon2">
+                            <i class="fal fa-search"></i>
+                        </button>
+                        <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
+                    </div>
+                </form>
+                <div class="dropdown account">
+                    <button th:name="key" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Account setting</a></li>
+                        <li><a class="dropdown-item" href="/logout">Log out</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main-body">
+                <div class="title-page">
+                    <h4>Thông báo từ nhà trường</h4>
+                </div>
+
+                <div th:if="${posts.size() != 0}">
+                    <div th:each="post :${posts}" class="post-wrapper">
+                        <p class="post-title text-center fw-bold" th:text="${post.title}"></p>
+                        <div class="post-description" th:utext="${post.description}"></div>
+                        <div class="time-create">
+                            <span th:text="${post.getStringDate(post.createdAt)}"></span>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${posts.size() == 0}">-- Không có thông báo --</div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+</div>
+
+<content th:replace="fragments/init :: script"></content>
+</body>
+</html>

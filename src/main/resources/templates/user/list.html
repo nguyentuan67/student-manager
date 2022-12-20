@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Dashboard</title>
+    <content th:replace="fragments/init :: head"></content>
+</head>
+
+<body>
+<div class="container-fluid" style="padding: 0">
+    <div class="row g-0">
+        <content th:replace="fragments/nav-bar :: content"></content>
+        <div class="app col-10">
+            <div class="header">
+                <form style="width: 100%;" th:action="@{/user/find}" method="GET">
+                    <div class="search-group input-group d-flex align-items-center">
+                        <button class="search-btn" type="submit" id="button-addon2">
+                            <i class="fal fa-search"></i>
+                        </button>
+                        <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
+                    </div>
+                </form>
+                <div class="dropdown account">
+                    <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Account setting</a></li>
+                        <li><a class="dropdown-item" href="/logout">Log out</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main-body">
+                <div class="title-page">
+                    <h4>Danh sách tài khoản</h4>
+                    <a class="btn btn-primary" href="/user/add">Thêm mới +</a>
+                </div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Tên</th>
+                        <th scope="col">Giới tính</th>
+                        <th scope="col">Ngày sinh</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Địa chỉ</th>
+                        <th scope="col">Quyền</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user, iterStat: ${users}">
+                        <td  data-title="Stt" th:text="${iterStat.count}">1</td>
+                        <td th:text="${user.username}"></td>
+                        <td th:text="${user.name}"></td>
+                        <td th:text="${user.gender}"></td>
+                        <td th:text="${user.getStringDob()}"></td>
+                        <td th:text="${user.email}"></td>
+                        <td th:text="${user.address}"></td>
+                        <td th:text="${user.getRoles().get(0).displayName}"></td>
+                        <td class="act-td">
+                            <a class="act-btn edit-btn" th:href="@{/user/{id}/update(id=${user.id})}">
+                                <i class="fal fa-comment-alt-edit"></i>
+                            </a>
+                            <a th:data-id="${user.id}" class="act-btn delete-btn" data-bs-toggle="modal" data-bs-target="#delete">
+                                <i class="fal fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal fade" id="delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5 text-danger" id="exampleModalLabel">Xóa tài khoản!</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h4>Bạn có chắc muốn xóa tài khoản này!!!</h4>
+                        <form action="/user/delete" method="GET">
+                            <input class="delete-form" th:name="id" id="delete-id" hidden="true"/>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="submit" class="btn btn-danger">Xóa</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<content th:replace="fragments/init :: script"></content>
+<script>
+    let id="";
+    let form = $("#delete-id")
+    $(".delete-btn").on('click', function() {
+        id = Number($(this).attr("data-id"));
+        form.val(id)
+    })
+</script>
+</body>
+</html>

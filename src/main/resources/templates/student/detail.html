@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Thông tin</title>
+    <content th:replace="fragments/init :: head"></content>
+</head>
+<body>
+
+<div class="container-fluid" style="padding: 0">
+    <div class="row g-0">
+        <content th:replace="fragments/nav-bar :: content"></content>
+
+        <div class="app col-10">
+            <div class="header">
+                <form style="width: 100%;" th:action="@{/user/find}" method="GET">
+                    <div class="search-group input-group d-flex align-items-center">
+                        <button class="search-btn" type="submit" id="button-addon2">
+                            <i class="fal fa-search"></i>
+                        </button>
+                        <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
+                    </div>
+                </form>
+                <div class="dropdown account">
+                    <button th:text="${student.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Account setting</a></li>
+                        <li><a class="dropdown-item" href="/logout">Log out</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main-body">
+                <div class="title-page">
+                    <h4>Danh sách tài khoản</h4>
+                </div>
+                <div class="container mb-4">
+                    <img style="width: 180px" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Ảnh đại diện">
+                    <div class="detail-wrapper d-flex justify-content-between">
+                        <div class="info-wrapper">
+                            <h4 class="name mt-2" th:text="${student.name} + ' (Học sinh)'"></h4>
+                            <p class="detail-txt" th:text="${'Mã sinh viên: ' + student.id}"></p>
+                            <p class="detail-txt" th:text="${'Giới tính: ' + student.gender}"></p>
+                            <p class="detail-txt" th:text="${'Số điện thoại: ' + student.phone}"></p>
+                            <p class="detail-txt" th:text="${'Email: ' + student.email}"></p>
+                            <p class="detail-txt" th:text="${'Ngày sinh: ' + student.getStringDob()}"></p>
+                            <p class="detail-txt" th:text="${'Địa chỉ: ' + student.address}"></p>
+                        </div>
+                        <div class="info-wrapper">
+                            <p class="detail-txt" th:text="${'Khóa: ' + student.classrooms.get(0).grade}"></p>
+                            <p class="detail-txt" th:text="${'Lớp: ' + student.classrooms.get(0).name}"></p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<content th:replace="fragments/init :: script"></content>
+</body>
+</html>

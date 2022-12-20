@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Dashboard</title>
+    <content th:replace="fragments/init :: head"></content>
+</head>
+
+<body>
+<div class="container-fluid" style="padding: 0">
+    <div class="row g-0">
+        <content th:replace="fragments/nav-bar :: content"></content>
+        <div class="app col-10">
+            <div class="header">
+                <form style="width: 100%;">
+                    <div class="search-group input-group d-flex align-items-center">
+                        <button class="search-btn" type="submit" id="button-addon2">
+                            <i class="fal fa-search"></i>
+                        </button>
+                        <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
+                    </div>
+                </form>
+                <div class="dropdown account">
+                    <button th:text="${teacher.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Account setting</a></li>
+                        <li><a class="dropdown-item" href="/logout">Log out</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main-body">
+                <div class="title-page">
+                    <h4>Thông tin cá nhân</h4>
+                </div>
+                <div class="container">
+                    <img style="width: 180px" src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="Ảnh đại diện">
+                    <div class="detail-wrapper d-flex justify-content-between">
+                        <div class="info-wrapper">
+                            <h4 class="name mt-2" th:text="${teacher.name} + ' (Giáo viên)' "></h4>
+                            <p class="detail-txt" th:text="${'Mã giáo viên: ' + teacher.id}"></p>
+                            <p class="detail-txt" th:text="${'Giới tính: ' + teacher.gender}"></p>
+                            <p class="detail-txt" th:text="${'Số điện thoại: ' + teacher.phone}"></p>
+                            <p class="detail-txt" th:text="${'Email: ' + teacher.email}"></p>
+                        </div>
+                        <div class="info-wrapper">
+                            <p class="detail-txt" th:text="${'Ngày sinh: ' + teacher.getStringDob()}"></p>
+                            <p class="detail-txt" th:text="${'Địa chỉ: ' + teacher.address}"></p>
+                            <p class="detail-txt" th:text="${'Dạy môn: '+ teacher.subjects.get(0).name + ' (Khóa: ' + teacher.subjects.get(0).grade} + ')'"></p>
+                        </div>
+                    </div>
+                    <h4 sec:authorize="hasAuthority('ADMIN')">Danh sách lớp giảng dạy</h4>
+                    <table sec:authorize="hasAuthority('ADMIN')" class="table mt-4">
+                        <thead>
+                        <tr>
+                            <th scope="col">STT</th>
+                            <th scope="col">Lớp</th>
+                            <th scope="col">Số sinh viên</th>
+                            <th scope="col">Môn</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="classroom, stats: ${classrooms}">
+                            <td th:text="${stats.count}"></td>
+                            <td th:text="${classroom.name}"></td>
+                            <td th:text="${classroom.users.size()}"></td>
+                            <td th:text="${teacher.subjects.get(0).name}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<content th:replace="fragments/init :: script"></content>
+</body>
+</html>

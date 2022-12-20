@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Dashboard</title>
+    <content th:replace="fragments/init :: head"></content>
+</head>
+
+<body>
+
+<div class="container-fluid" style="padding: 0">
+    <div class="row g-0">
+        <content th:replace="fragments/nav-bar :: content"></content>
+
+
+        <div class="app col-10">
+            <div class="header">
+                <form style="width: 100%;" th:action="@{/user/find}" method="GET">
+                    <div class="search-group input-group d-flex align-items-center">
+                        <button class="search-btn" type="submit" id="button-addon2">
+                            <i class="fal fa-search"></i>
+                        </button>
+                        <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
+                    </div>
+                </form>
+                <div class="dropdown account">
+                    <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Account setting</a></li>
+                        <li><a class="dropdown-item" href="/logout">Log out</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main-body">
+                <div class="title-page">
+                    <h4>Bài viết của tôi</h4>
+                    <a class="btn btn-primary" href="/post/create">Tạo thông báo +</a>
+                </div>
+                    <div th:if="${posts.size() != 0}">
+                        <div th:each="post :${posts}" class="post-wrapper">
+                            <p class="post-title text-center fw-bold" th:text="${post.title}"></p>
+                            <div class="post-description" th:utext="${post.description}"></div>
+                            <div class="time-create">
+                                <span th:text="${post.getStringDate(post.createdAt)}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${posts.size() == 0}" class="post-wrapper">-- Không có thông báo --</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<content th:replace="fragments/init :: script"></content>
+<script>
+    let id="";
+    let form = $("#delete-id")
+    $(".delete-btn").on('click', function() {
+        id = Number($(this).attr("data-id"));
+        form.val(id)
+    })
+</script>
+</body>
+</html>
