@@ -62,4 +62,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     public List<User> findUserWithRole(Integer roleId) {
         return userRepo.findUserWithRole(roleId);
     }
+
+    @Override
+    public User findByUsername(String username) {
+        return userRepo.findByUsername(username);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepo.findByEmail(email);
+    }
+
 }

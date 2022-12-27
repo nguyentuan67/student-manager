@@ -10,43 +10,25 @@
   <div class="row g-0">
     <content th:replace="fragments/nav-bar :: content"></content>
     <div class="app col-10">
-      <div class="header">
-        <form style="width: 100%;" th:action="@{/user/find}" method="GET">
-          <div class="search-group input-group d-flex align-items-center">
-            <button class="search-btn" type="submit" id="button-addon2">
-              <i class="fal fa-search"></i>
-            </button>
-            <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..." aria-describedby="button-addon2">
-          </div>
-        </form>
-        <div class="dropdown account">
-          <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-          </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Account setting</a></li>
-            <li><a class="dropdown-item" href="/logout">Log out</a></li>
-          </ul>
-        </div>
-      </div>
       <div class="main-body">
         <div class="title-page">
           <h4>Chỉnh sửa tài khoản</h4>
         </div>
-        <form th:action="@{/user/update}" method="POST">
-          <input type="text" hidden th:name="id" th:value="${user.id}">
+        <form th:action="@{/user/update}" th:object="${userModel}" id="formCreate" method="POST">
+          <input type="text" hidden  id="userId" th:name="id" th:value="${user.id}">
           <div class="mb-3">
             <label class="form-label">Username</label>
-            <input disabled type="text" th:name="username" th:value="${user.username}" class="form-control">
+            <input disabled type="text" id="username" th:name="username" th:value="${user.username}" class="form-control">
           </div>
           <div class="mb-3">
             <label class="form-label">Họ và tên</label>
-            <input type="text" th:name="name" th:value="${user.name}" class="form-control">
+            <input type="text" id="name" th:name="name" th:value="${user.name}" class="form-control">
           </div>
           <div class="mb-3">
             <label class="form-label">Ngày sinh</label>
             <div class="col-5">
               <div class="input-group date" id="datepicker">
-                <input th:value="${user.getStringDob()}" type="text" th:name="dob" class="form-control" id="date"/>
+                <input th:value="${user.getStringDob()}" type="text" id="date" th:name="dob" class="form-control"/>
                 <span class="input-group-append"></span>
               </div>
             </div>
@@ -55,13 +37,15 @@
             <label class="form-label">Giới tính</label>
             <select class="form-select form-select-lg mb-3 classId"
                     th:if="${user.gender == 'Nam'}"
-                    th:name="gender" aria-label=".form-select-lg example">
+                    id="gender" th:name="gender"
+                    aria-label=".form-select-lg example">
               <option th:value="Nam" selected th:text="Nam"></option>
               <option th:value="Nữ" th:text="Nữ"></option>
             </select>
             <select class="form-select form-select-lg mb-3 classId"
                     th:if="${user.gender == 'Nữ'}"
-                    th:name="gender" aria-label=".form-select-lg example">
+                    id="gender1" th:name="gender"
+                    aria-label=".form-select-lg example">
               <option th:value="Nam" th:text="Nam"></option>
               <option th:value="Nữ" selected th:text="Nữ"></option>
             </select>
@@ -72,18 +56,18 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Số điện thoại</label>
-            <input type="text" th:name="phone" th:value="${user.phone}" class="form-control">
+            <input type="text" id="phone" th:name="phone" th:value="${user.phone}" class="form-control">
           </div>
           <div class="mb-3">
             <label class="form-label">Địa chỉ</label>
-            <input type="text" th:name="address" th:value="${user.address}" class="form-control">
+            <input type="text" id="address" th:name="address" th:value="${user.address}" class="form-control">
           </div>
 
           <div class="mb-3">
             <label>Phân quyền</label>
             <div class="form-check">
               <input class="form-check-input role-input" type="radio"
-                     th:name="role_id" th:value="0"
+                     th:name="roleId" th:value="0"
                      th:checked="${user.roles.get(0).id==0}"
                      name="flexRadioDefault" id="flexRadioDefault1" checked>
               <label class="form-check-label" for="flexRadioDefault1">
@@ -92,7 +76,7 @@
             </div>
             <div class="form-check">
               <input class="form-check-input role-input" type="radio"
-                     th:name="role_id" th:value="1"
+                     th:name="roleId" th:value="1"
                      th:checked="${user.roles.get(0).id==1}"
                      name="flexRadioDefault" id="flexRadioDefault2">
               <label class="form-check-label" for="flexRadioDefault2">
@@ -104,8 +88,7 @@
           <div th:if="${user.roles.get(0).id == 0}" >
             <div class="mb-3 select-item active">
               <label class="form-label">Lớp học</label>
-              <select class="form-select form-select-lg mb-3 classId" th:name="classroom_id" aria-label=".form-select-lg example">
-                <option value=" " selected>Chọn lớp học</option>
+              <select class="form-select form-select-lg classId" th:name="classId" aria-label=".form-select-lg example">
                 <option th:each="classroom: ${classrooms}"
                         th:value="${classroom.id}"
                         th:text="${classroom.name}"
@@ -115,8 +98,8 @@
             </div>
             <div class="mb-3 select-item">
               <label class="form-label">Dạy môn</label>
-              <select class="form-select form-select-lg mb-3 classId" th:name="subject_id" aria-label=".form-select-lg example">
-                <option value=" " selected>Chọn môn học</option>
+              <select disabled class="form-select form-select-lg classId" id="subjectId" th:name="subjectId" aria-label=".form-select-lg example">
+                <option value="" selected>Chọn môn học</option>
                 <option th:each="subject: ${subjects}"
                         th:value="${subject.id}"
                         th:text="${subject.name} + ' (Lớp: ' + ${subject.grade} + ')'"
@@ -129,8 +112,8 @@
           <div th:if="${user.roles.get(0).id == 1}" >
             <div class="mb-3 select-item">
               <label class="form-label">Lớp học</label>
-              <select class="form-select form-select-lg mb-3 classId" th:name="classroom_id" aria-label=".form-select-lg example">
-                <option value=" " selected>Chọn lớp học</option>
+              <select disabled class="form-select form-select-lg classId" id="classId" th:name="classId" aria-label=".form-select-lg example">
+                <option value="" selected>Chọn lớp học</option>
                 <option th:each="classroom: ${classrooms}"
                         th:value="${classroom.id}"
                         th:text="${classroom.name}"
@@ -140,8 +123,7 @@
             </div>
             <div class="mb-3 select-item active">
               <label class="form-label">Dạy môn</label>
-              <select class="form-select form-select-lg mb-3 classId" th:name="subject_id" aria-label=".form-select-lg example">
-                <option value=" " selected>Chọn môn học</option>
+              <select class="form-select form-select-lg classId" th:name="subjectId" aria-label=".form-select-lg example">
                 <option th:each="subject: ${subjects}"
                         th:value="${subject.id}"
                         th:text="${subject.name} + ' (Lớp: ' + ${subject.grade} + ')'"
@@ -162,6 +144,9 @@
 </div>
 
 <content th:replace="fragments/init :: script"></content>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js" type="text/javascript"></script>
+
 <script type="text/javascript">
   $(function() {
     $('#datepicker').datepicker({
@@ -180,9 +165,33 @@
       $('.select-item.active select').removeAttr('disabled');
     }
   })
-  $('.back-btn').onclick = () => {
-    window.history.back()
-  }
+
+  $().ready(function() {
+    $("#formCreate").validate({
+      rules: {
+        username: "required",
+        name: "required",
+        gender: "required",
+        classId: "required",
+        subjectId: "required",
+        email: {
+          required: true,
+        },
+        password: {
+          required: true,
+          minlength: 6
+        }
+      },
+
+      messages: {
+        name: "Please enter fullname",
+        gender: "Please select gender",
+        gender1: "Please select gender",
+        classId: "Please select classroom",
+        subjectId: "Please select subject",
+      }
+    });
+  });
 </script>
 </body>
 </html>

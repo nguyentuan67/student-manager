@@ -36,7 +36,7 @@ public class ResultController {
                             resultForm.setUpdateAt(new Date());
                             resultService.create(resultForm);
                         } else {
-                            if(resultForm.getMark() != result.getMark()) {
+                            if(!resultForm.getMark().equals(result.getMark())) {
                                 result.setUpdateAt(new Date());
                                 result.setMark(resultForm.getMark());
                                 resultService.update(result);

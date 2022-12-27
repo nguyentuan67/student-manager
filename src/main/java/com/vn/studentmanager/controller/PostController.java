@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -63,5 +64,25 @@ public class PostController {
         }
 
         return "redirect:/post";
+    }
+
+    @RequestMapping(value = {"/find"}, method = {RequestMethod.GET})
+    public String findPost(Model model,
+                           Authentication authentication,
+                           @RequestParam(value = "key", defaultValue = "") String key) {
+        try {
+            if(key!=null) {
+                List<Post> posts = postService.findByKey(key);
+                User auth = (User) authentication.getPrincipal();
+                User authUser = userService.findById(auth.getId());
+                Collections.reverse(posts);
+                model.addAttribute("auth", authUser);
+                model.addAttribute("posts", posts);
+                return "home";
+            }
+        } catch (Exception e) {
+            logger.error("", e);
+        }
+        return "post/list";
     }
 }

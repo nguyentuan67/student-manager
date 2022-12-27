@@ -14,7 +14,7 @@
 
         <div class="app col-10">
             <div class="header">
-                <form style="width: 100%;" th:action="@{/user/find}" method="GET">
+                <form style="width: 100%;" th:action="@{/post/find}" method="GET">
                     <div class="search-group input-group d-flex align-items-center">
                         <button class="search-btn" type="submit" id="button-addon2">
                             <i class="fal fa-search"></i>
@@ -26,8 +26,8 @@
                     <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Account setting</a></li>
-                        <li><a class="dropdown-item" href="/logout">Log out</a></li>
+                        <li><a class="dropdown-item" th:href="@{/user/setting}">Đổi mật khẩu</a></li>
+                        <li><a class="dropdown-item" th:href="@{/logout.html}">Log out</a></li>
                     </ul>
                 </div>
             </div>
@@ -37,7 +37,7 @@
                     <a class="btn btn-primary" href="/post/create">Tạo thông báo +</a>
                 </div>
                     <div th:if="${posts.size() != 0}">
-                        <div th:each="post :${posts}" class="post-wrapper">
+                        <div th:each="post :${posts}" class="item-wrapper">
                             <p class="post-title text-center fw-bold" th:text="${post.title}"></p>
                             <div class="post-description" th:utext="${post.description}"></div>
                             <div class="time-create">
@@ -45,7 +45,7 @@
                             </div>
                         </div>
                     </div>
-                    <div th:if="${posts.size() == 0}" class="post-wrapper">-- Không có thông báo --</div>
+                    <div th:if="${posts.size() == 0}" class="item-wrapper">-- Không có thông báo --</div>
             </div>
         </div>
     </div>

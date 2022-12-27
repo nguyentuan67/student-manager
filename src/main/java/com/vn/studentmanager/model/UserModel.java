@@ -1,9 +1,12 @@
 package com.vn.studentmanager.model;
 
+import com.vn.studentmanager.entities.Classroom;
 import com.vn.studentmanager.entities.Role;
+import com.vn.studentmanager.entities.Subject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -21,7 +24,9 @@ public class UserModel {
 
     private String email;
 
-    private Date dob;
+    private String password;
+
+    private String dob;
 
     private String gender;
 
@@ -29,11 +34,10 @@ public class UserModel {
 
     private String phone;
 
-    @ManyToMany(cascade = { CascadeType.ALL})
-    @JoinTable(
-            name = "user_role",
-            joinColumns = { @JoinColumn(name = "user_id") },
-            inverseJoinColumns = { @JoinColumn(name = "role_id") }
-    )
-    private List<Role> roles;
+    private List<Integer> roleId;
+    @Nullable
+    private Long classId;
+    @Nullable
+    private Long subjectId;
+
 }

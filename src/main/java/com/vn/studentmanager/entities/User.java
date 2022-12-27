@@ -67,7 +67,7 @@ public class User implements UserDetails {
     )
     private List<Subject> subjects;
 
-    @OneToMany(mappedBy = "student")
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Result> results;
 
     @Override

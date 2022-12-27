@@ -155,6 +155,8 @@ public class SubjectController {
 
             //xóa classSubject liên quan
             classSubjects.forEach(classSubject -> classSubjectService.delete(classSubject));
+            //xóa subject của teacher
+
             subjectService.delete(subject);
         } catch (Exception e) {
             logger.error("", e);

@@ -45,7 +45,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/webjars/**", "/resources/**", "/assets/**", "/fonts/**", "/ws/**", "/static/**").permitAll()
+                .antMatchers("/webjars/**", "/resources/**", "/assets/**", "/fonts/**", "/ws/**").permitAll()
+                .antMatchers( "/user/setting", "/post/find**").authenticated()
                 .antMatchers("/student/detail", "/student/result", "/classroom/detail").hasAnyAuthority("USER", "TEACHER")
                 .antMatchers("/teacher/detail", "/classroom/", "/classroom/**/detail").hasAnyAuthority("TEACHER")
                 .antMatchers("/user/**", "/student/**", "/classroom/**", "/teacher/**", "/post/**").hasAnyAuthority("ADMIN")
@@ -65,11 +66,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .permitAll()
                 .and()
                     .logout()
-                    .logoutSuccessUrl("/login.html")
-                    .logoutUrl("/logout.html")
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout.html")) // for POST and GET
-                    .deleteCookies( "JSESSIONID" )
-                    .invalidateHttpSession(true)
-                    .permitAll();
+                        .logoutSuccessUrl("/login.html?logout=true")
+                        .logoutUrl("/logout.html")
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout.html")) // for POST and GET
+                        .deleteCookies( "JSESSIONID" )
+                        .invalidateHttpSession(true)
+                        .permitAll();
     }
 }

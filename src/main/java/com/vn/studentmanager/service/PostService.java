@@ -9,5 +9,5 @@ public interface PostService {
     void update(Post post);
     void delete(Post post);
     List<Post> findAll();
-    List<Post> findByTitle(String key);
+    List<Post> findByKey(String key);
 }

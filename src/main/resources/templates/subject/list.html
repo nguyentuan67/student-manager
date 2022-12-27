@@ -24,8 +24,8 @@
           <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
           </button>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Account setting</a></li>
-            <li><a class="dropdown-item" href="/logout">Log out</a></li>
+            <li><a class="dropdown-item" th:href="@{/user/setting}">Đổi mật khẩu</a></li>
+            <li><a class="dropdown-item" th:href="@{/logout.html}">Log out</a></li>
           </ul>
         </div>
       </div>
@@ -56,7 +56,14 @@
               <a class="act-btn edit-btn" th:href="@{/subject/{id}/update(id=${subject.id})}">
                 <i class="fal fa-comment-alt-edit"></i>
               </a>
-              <a th:data-id="${subject.id}"  class="act-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
+              <a th:data-id="${subject.id}"
+                 th:if="${subject.users.size() ==0 }"
+                 class="act-btn delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="fal fa-trash"></i>
+              </a>
+              <a th:data-id="${subject.id}"
+                 th:if="${subject.users.size() !=0 }"
+                 class="act-btn delete-btn" data-bs-toggle="modal" data-bs-target="#preventDeleteModal">
                 <i class="fal fa-trash"></i>
               </a>
             </td>
@@ -87,7 +94,25 @@
       </div>
     </div>
 
-
+    <div class="modal fade" id="preventDeleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Xóa môn học</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <h4 class="text-danger">Không thể xóa môn học</h4>
+            <p>Có giáo viên đang dạy môn này</p>
+            <form action="/subject/delete" method="GET">
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

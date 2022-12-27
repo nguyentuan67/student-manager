@@ -33,7 +33,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findByTitle(String key) {
-        return null;
+    public List<Post> findByKey(String key) {
+        return postRepo.findByKey(key);
     }
 }

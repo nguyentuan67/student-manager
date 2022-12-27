@@ -13,6 +13,8 @@ import java.util.List;
 public interface UserRepo extends JpaRepository<User, Long> {
     User findByUsername(String username);
     User findTopById(Long id);
+    @Query(value = "select u from User u where(:email = u.email)")
+    User findByEmail(@Param("email") String email);
     @Query("select u from User u where (:key = ' ' or u.username LIKE CONCAT('%', :key, '%')) or " +
             "(:key = ' ' or u.name LIKE CONCAT('%', :key, '%'))  ")
         List<User> findUser(@Param("key") String key);

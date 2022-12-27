@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Dashboard</title>
+    <content th:replace="fragments/init :: head"></content>
+</head>
+
+<body>
+<div class="container-fluid" style="padding: 0">
+    <div class="row g-0">
+        <content th:replace="fragments/nav-bar :: content"></content>
+        <div class="app col-10">
+            <div class="header">
+                <form style="width: 100%;" th:action="@{/user/find}" method="GET">
+                    <div class="search-group input-group d-flex align-items-center">
+                        <button class="search-btn" type="submit" id="button-addon2">
+                            <i class="fal fa-search"></i>
+                        </button>
+                        <input type="text" th:name="key" class="search-input" placeholder="Tìm kiếm..."
+                               aria-describedby="button-addon2">
+                    </div>
+                </form>
+                <div class="dropdown account">
+                    <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/user/setting}">Đổi mật khẩu</a></li>
+                        <li><a class="dropdown-item" th:href="@{/logout.html}">Log out</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main-body">
+                <div class="title-page">
+                    <h4>Cập nhật</h4>
+                </div>
+                <div class="item-wrapper">
+                    <div class="alert alert-success" role="alert" th:if="${success}">
+                        <span th:text="${success}"></span>
+                        <button aria-label="Close" class="btn-close float-end" data-bs-dismiss="alert" type="button"></button>
+                    </div>
+                    <form th:action="@{/user/setting}" th:object="${form}" id="formSetting" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Tên đăng nhập</label>
+                            <input disabled type="text" th:value="${auth.username}" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu hiện tại</label>
+                            <input type="password" id="currentPassword" th:field="*{currentPassword}" class="form-control">
+                            <p class="msg-danger" th:if="${err}">Mật khẩu không chính xác</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu mới</label>
+                            <input type="password" id="newPassword" th:field="*{newPassword}" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Xác nhận mật khẩu</label>
+                            <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-control">
+                        </div>
+
+                        <div class="btn-submit-form">
+                            <button type="submit" class="btn btn-primary">Cập nhật</button>
+                            <a href="javascript:history.back();" class="btn btn-danger">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<content th:replace="fragments/init :: script"></content>
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.2.1.min.js"></script>
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js" type="text/javascript"></script>
+
+<script>
+    $().ready(function () {
+        $("#formSetting").validate({
+            rules: {
+                newPassword: {
+                    required: true,
+                    minlength: 6
+                },
+                confirmPassword: {
+                    equalTo: "#newPassword",
+                }
+            },
+            messages: {
+                newPassword: {
+                    required: "Please provide a password",
+                    minlength: "Your password must be at least 6 characters long"
+                },
+                confirmPassword: {
+                    equalTo: "password incorrect",
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

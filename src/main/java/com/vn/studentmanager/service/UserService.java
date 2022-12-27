@@ -11,6 +11,7 @@ public interface UserService {
     List<User> findAll();
     List<User> findByNameOrUsername(String key);
     User findById(Long id);
-
     List<User> findUserWithRole(Integer roleId);
+    User findByUsername(String username);
+    User findByEmail(String email);
 }

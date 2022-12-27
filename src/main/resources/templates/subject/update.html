@@ -25,8 +25,8 @@
                     <button th:text="${auth.name}" class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Account setting</a></li>
-                        <li><a class="dropdown-item" href="/logout">Log out</a></li>
+                        <li><a class="dropdown-item" th:href="@{/user/setting}">Đổi mật khẩu</a></li>
+                        <li><a class="dropdown-item" th:href="@{/logout.html}">Log out</a></li>
                     </ul>
                 </div>
             </div>

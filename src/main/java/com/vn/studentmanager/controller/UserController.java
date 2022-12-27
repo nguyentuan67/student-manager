@@ -1,25 +1,24 @@
 package com.vn.studentmanager.controller;
 
 import com.sun.org.apache.xpath.internal.operations.Mod;
-import com.vn.studentmanager.entities.Classroom;
-import com.vn.studentmanager.entities.Role;
-import com.vn.studentmanager.entities.Subject;
-import com.vn.studentmanager.entities.User;
+import com.vn.studentmanager.entities.*;
+import com.vn.studentmanager.model.PasswordFormModel;
 import com.vn.studentmanager.model.UserModel;
-import com.vn.studentmanager.service.ClassroomService;
-import com.vn.studentmanager.service.RoleService;
-import com.vn.studentmanager.service.SubjectService;
-import com.vn.studentmanager.service.UserService;
+import com.vn.studentmanager.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,7 +27,6 @@ import java.util.List;
 @Controller
 @RequestMapping("/user")
 public class UserController {
-
     Logger logger = LoggerFactory.getLogger(StudentController.class);
     @Autowired
     UserService userService;
@@ -39,10 +37,12 @@ public class UserController {
     @Autowired
     SubjectService subjectService;
     @Autowired
+    ResultService resultService;
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     @RequestMapping(value = {"", "/list"}, method = RequestMethod.GET)
-    public String listUser(Model model, Authentication authentication){
+    public String listUser(Model model, Authentication authentication) {
         User auth = (User) authentication.getPrincipal();
         User authUser = userService.findById(auth.getId());
         List<User> users = userService.findAll();
@@ -52,12 +52,15 @@ public class UserController {
     }
 
     @RequestMapping(value = {"/find"}, method = RequestMethod.GET)
-    public String findUser(Model model,
-                           @RequestParam(value = "key") String key ){
+    public String findUser(Model model, Authentication authentication,
+                           @RequestParam(value = "key") String key) {
         try {
-            if(key != null) {
+            if (key != null) {
+                User authUser = (User) authentication.getPrincipal();
+                User auth = userService.findById(authUser.getId());
                 List<User> users = userService.findByNameOrUsername(key);
                 model.addAttribute("users", users);
+                model.addAttribute("auth", auth);
             }
         } catch (Exception e) {
             logger.error("", e);
@@ -66,10 +69,13 @@ public class UserController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.GET)
-    public String addUserGet(Model model, Authentication authentication){
+    public String addUserGet(Model model, Authentication authentication) {
+        UserModel userModel = new UserModel();
         User auth = (User) authentication.getPrincipal();
         User authUser = userService.findById(auth.getId());
+
         model.addAttribute("auth", authUser);
+        model.addAttribute("userModel", userModel);
         model.addAttribute("classrooms", classroomService.findAll());
         model.addAttribute("subjects", subjectService.findAll());
         return "user/add";
@@ -77,76 +83,81 @@ public class UserController {
 
     @RequestMapping(value = {"/add"}, method = {RequestMethod.POST})
     public String addUserPost(Model model,
-                              @RequestParam(value = "username", defaultValue = "") String username,
-                              @RequestParam(value = "password", defaultValue = "") String password,
-                              @RequestParam(value = "name", defaultValue = "") String name,
-                              @RequestParam(value = "email", defaultValue = "") String email,
-                              @RequestParam(value = "dob", defaultValue = "") String dob,
-                              @RequestParam(value = "gender", defaultValue = "") String gender,
-                              @RequestParam(value = "phone", defaultValue = "") String phone,
-                              @RequestParam(value = "address", defaultValue = "") String address,
-                              @RequestParam(value = "role_id", defaultValue = "0") Integer roleId,
-                              @RequestParam(value = "classroom_id", defaultValue = "") Long classId,
-                              @RequestParam(value = "subject_id", defaultValue = "") Long subjectId ) {
-        try {
-            User user = new User();
-            if (    username!=null || username.trim().length() != 0
-                    && password!=null || password.trim().length() != 0
-                    && name!=null || name.trim().length() != 0
-                    && email!=null || email.trim().length() != 0
-                    && dob!=null || dob.trim().length() != 0
-                    && gender!=null || gender.trim().length() != 0
-                    && phone!=null || phone.trim().length() != 0
-                    && address!=null || address.trim().length() != 0
-                    && roleId != null ) {
-                if(classId != null) {
+                              @ModelAttribute @Valid UserModel userModel,
+                              BindingResult result,
+                              RedirectAttributes redirectAttrs) {
+        User user = new User();
+        user.setUsername(userModel.getUsername());
+        //check username exist
+        User userValidate = userService.findByUsername(userModel.getUsername());
+        if (userValidate != null) {
+            result.rejectValue("username", "");
+        }
+        //check email exist
+        User emailValidate = userService.findByEmail(userModel.getEmail());
+        if (emailValidate != null) {
+            result.rejectValue("email", "");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("userModel", userModel);
+            model.addAttribute("classrooms", classroomService.findAll());
+            model.addAttribute("subjects", subjectService.findAll());
+            return "user/add";
+        } else {
+            try {
+                if (userModel.getClassId() != null) {
                     List<Classroom> classrooms = new ArrayList<>();
-                    classrooms.add(classroomService.findById(classId));
+                    Classroom classroom = classroomService.findById(userModel.getClassId());
+                    classrooms.add(classroom);
                     user.setClassrooms(classrooms);
-                } else if (subjectId != null) {
+                } else if (userModel.getSubjectId() != null) {
                     List<Subject> subjects = new ArrayList<>();
-                    subjects.add(subjectService.findById(subjectId));
+                    subjects.add(subjectService.findById(userModel.getSubjectId()));
                     user.setSubjects(subjects);
                 }
-                SimpleDateFormat formatter1=new SimpleDateFormat("dd/MM/yyyy");
-                Date newDob = formatter1.parse(dob);
+                SimpleDateFormat formatter1 = new SimpleDateFormat("dd/MM/yyyy");
+                Date newDob = formatter1.parse(userModel.getDob());
 
                 List<Role> newRoles = new ArrayList<>();
-                Role role = roleService.findById(roleId);
+                Role role = roleService.findById(userModel.getRoleId().get(0));
                 newRoles.add(role);
 
-                user.setUsername(username);
-                user.setPassword(passwordEncoder.encode(password));
-                user.setName(name);
-                user.setEmail(email);
-                user.setGender(gender);
-                user.setPhone(phone);
-                user.setAddress(address);
+
+                user.setPassword(passwordEncoder.encode(userModel.getPassword()));
+                user.setName(userModel.getName());
+                user.setEmail(userModel.getEmail());
+                user.setGender(userModel.getGender());
+                user.setPhone(userModel.getPhone());
+                user.setAddress(userModel.getAddress());
                 user.setDob(newDob);
                 user.setRoles(newRoles);
 
-
                 userService.create(user);
-            } else {
-                String log = "Phai nhap day du";
-                return "user/add";
+                if (user.getClassrooms() != null) {
+                    Classroom classroom = classroomService.findById(userModel.getClassId());
+                    //thêm student vào bảng result
+                    classroom.getSubjects().forEach(subject -> {
+                        Result resultSubject = new Result();
+                        resultSubject.setStudent(user);
+                        resultSubject.setSubject(subject);
+                        resultSubject.setUpdateAt(new Date());
+                        resultService.create(resultSubject);
+                    });
+                }
+                redirectAttrs.addFlashAttribute("success", "Đã tạo thành công" + userModel.getUsername());
+            } catch (Exception e) {
+                logger.error("", e);
+                redirectAttrs.addFlashAttribute("warning", "Không thành công");
             }
-        } catch (Exception e) {
-            logger.error("",e);
         }
-        return "redirect:/user/list";
+        return "redirect:/user/add";
     }
 
     @RequestMapping(value = {"/{id}/update"}, method = {RequestMethod.GET})
-    public String updateUserGet(
-            Model model, Authentication authentication,
-            @PathVariable("id") Long id) {
+    public String updateUserGet( Model model,  @PathVariable("id") Long id) {
+        UserModel userModel = new UserModel();
         User user = userService.findById(id);
-        List<Subject> subjects = user.getSubjects();
-        List<Classroom> classrooms = user.getClassrooms();
-        User auth = (User) authentication.getPrincipal();
-        User authUser = userService.findById(auth.getId());
-        model.addAttribute("auth", authUser);
+        model.addAttribute("userModel", userModel);
         model.addAttribute("user", user);
         model.addAttribute("classrooms", classroomService.findAll());
         model.addAttribute("subjects", subjectService.findAll());
@@ -155,61 +166,81 @@ public class UserController {
 
     @RequestMapping(value = {"/update"}, method = {RequestMethod.POST})
     public String updateUserPost(Model model,
-                                @RequestParam(value = "id", defaultValue = "") Long id,
-                                @RequestParam(value = "name", defaultValue = "") String name,
-                                @RequestParam(value = "dob", defaultValue = "") String dob,
-                                @RequestParam(value = "gender", defaultValue = "") String gender,
-                                @RequestParam(value = "phone", defaultValue = "") String phone,
-                                @RequestParam(value = "address", defaultValue = "") String address,
-                                @RequestParam(value = "role_id", defaultValue = "0") Integer roleId,
-                                 @RequestParam(value = "classroom_id", defaultValue = "") Long classId,
-                                 @RequestParam(value = "subject_id", defaultValue = "") Long subjectId ) {
+                                 @ModelAttribute UserModel userModel) {
         try {
-            User user = userService.findById(id);
+            User user = userService.findById(userModel.getId());
             if (user == null) {
                 return "redirect:/user/list/";
             }
-            if (    name!=null || name.trim().length() != 0
-                    && dob!=null || dob.trim().length() != 0
-                    && gender!=null || gender.trim().length() != 0
-                    && phone!=null || phone.trim().length() != 0
-                    && address!=null || address.trim().length() != 0
-                    && roleId != null ) {
-
-                if(classId != null) {
-                    user.getSubjects().clear();
-                    List<Classroom> classrooms = new ArrayList<>();
-                    classrooms.add(classroomService.findById(classId));
-                    user.setClassrooms(classrooms);
-                } else if (subjectId != null) {
-                    user.getClassrooms().clear();
-                    List<Subject> subjects = new ArrayList<>();
-                    subjects.add(subjectService.findById(subjectId));
-                    user.setSubjects(subjects);
-                }
-
-                SimpleDateFormat formatter1=new SimpleDateFormat("dd/MM/yyyy");
-                Date newDob = formatter1.parse(dob);
-
-                List<Role> newRoles = new ArrayList<>();
-                Role role = roleService.findById(roleId);
-                newRoles.add(role);
-
-                user.setName(name);
-                user.setGender(gender);
-                user.setPhone(phone);
-                user.setAddress(address);
-                user.setDob(newDob);
-                user.setRoles(newRoles);
-                userService.update(user);
-            } else {
-                String log = "Phai nhap day du";
-                return "user/update";
+            if (userModel.getClassId() != null) {
+                user.getSubjects().clear();
+                List<Classroom> classrooms = new ArrayList<>();
+                Classroom classroom = classroomService.findById(userModel.getClassId());
+                classrooms.add(classroom);
+                user.setClassrooms(classrooms);
+            } else if (userModel.getSubjectId() != null) {
+                List<Subject> subjects = new ArrayList<>();
+                subjects.add(subjectService.findById(userModel.getSubjectId()));
+                user.setSubjects(subjects);
             }
+
+            SimpleDateFormat formatter1 = new SimpleDateFormat("dd/MM/yyyy");
+            Date newDob = formatter1.parse(userModel.getDob());
+
+            List<Role> newRoles = new ArrayList<>();
+            Role role = roleService.findById(userModel.getRoleId().get(0));
+            newRoles.add(role);
+
+            user.setName(userModel.getName());
+            user.setGender(userModel.getGender());
+            user.setPhone(userModel.getPhone());
+            user.setAddress(userModel.getAddress());
+            user.setDob(newDob);
+            user.setRoles(newRoles);
+            userService.update(user);
         } catch (Exception e) {
-            logger.error("",e);
+            logger.error("", e);
         }
         return "redirect:/user/list";
+    }
+
+    @RequestMapping(value = {"/setting"}, method = {RequestMethod.GET})
+    public String authSettingGet(Model model, Authentication authentication) {
+        User auth = (User) authentication.getPrincipal();
+        User authUser = userService.findById(auth.getId());
+        PasswordFormModel passwordFormModel = new PasswordFormModel();
+
+        model.addAttribute("form", passwordFormModel);
+        model.addAttribute("auth", authUser);
+        return "/user/setting";
+    }
+
+    @RequestMapping(value = {"/setting"}, method = {RequestMethod.POST})
+    public String authSettingPost(Model model, Authentication authentication,
+                                  @ModelAttribute("passwordFormModel") @Valid PasswordFormModel passwordFormModel,
+                                  BindingResult result,
+                                  RedirectAttributes redirectAttrs ) {
+        User auth = (User) authentication.getPrincipal();
+        User user = userService.findById(auth.getId());
+        Boolean isMatches = passwordEncoder.matches(passwordFormModel.getCurrentPassword(), user.getPassword());
+        if(!isMatches) {
+            result.rejectValue("currentPassword", "");
+        }
+        if (result.hasErrors()) {
+            model.addAttribute("err", "Mật khẩu không chính xác");
+            model.addAttribute("form", passwordFormModel);
+            model.addAttribute("auth", user);
+            return "user/setting";
+        } else {
+            try {
+                user.setPassword(passwordEncoder.encode(passwordFormModel.getNewPassword()));
+                userService.update(user);
+                redirectAttrs.addFlashAttribute("success", "Đổi mật khẩu thành công");
+            } catch (Exception e) {
+                logger.error("", e);
+            }
+            return "redirect:/user/setting";
+        }
     }
 
     @RequestMapping(value = {"/delete"}, method = {RequestMethod.GET})
@@ -222,16 +253,5 @@ public class UserController {
         }
         return "redirect:/user/list/";
     }
-
-//    @RequestMapping(value = {"/result"}, method = {RequestMethod.GET})
-//    public String getResultStudent(@RequestParam(value = "id", defaultValue = "") Long id) {
-//        try {
-//            User user = userService.findById(id);
-//            userService.delete(user);
-//        } catch (Exception e) {
-//            logger.error("", e);
-//        }
-//        return "redirect:/user/list/";
-//    }
 
 }
